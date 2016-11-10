@@ -1,0 +1,78 @@
+@(implicit user: Option[User])
+
+  @main("Emojiban - Vote for slack custom emoji & import to your room!") {
+    <li><a href="/">TOP</a></li>
+  } {
+    <article class="main">
+      <h2>Popular Emojis</h2>
+      <ul class="emoji-list">
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current">3</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:haisho:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current">2</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:cat:, :nya-n:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current emoji-vote-negative">-1</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:cat:, :nya-n:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+      </ul>
+
+      <h2>New Arrival</h2>
+      <ul class="emoji-list">
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current">3</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:haisho:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current">2</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:cat:, :nya-n:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+        <li>
+          <div class="emoji-vote">
+            <a href="#" class="emoji-vote-good">▲</a>
+            <span class="emoji-vote-current emoji-vote-negative">-1</span>
+            <a href="#" class="emoji-vote-bad">▼</a>
+          </div>
+          <a href="/" title="ホバーで小さいサイズも並べて表示"><img src="@routes.Assets.at("images/test.png")" alt="拝承" height="64" width="64"></a>
+          <h3 class="emoji-alias">:cat:, :nya-n:</h3>
+          <a href="#" class="btn" title="slackのアプリケーションプロトコルとか叩けたらいいな">Import</a>
+        </li>
+      </ul>
+    </article>
+    <aside class="side">
+      <p>aside</p>
+    </aside>
+  }
