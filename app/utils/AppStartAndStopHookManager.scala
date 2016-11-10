@@ -21,19 +21,27 @@ class AppStartAndStopHookManager @Inject()(appLifecycle: ApplicationLifecycle) {
 
   // initialize JDBC driver & connection pool
   Class.forName("org.h2.Driver")
-  ConnectionPool.singleton("jdbc:h2:mem:hello", "user", "pass")
+  ConnectionPool.singleton("jdbc:h2:mem:emojiban", "user", "pass")
 
   // ad-hoc session provider on the REPL
   implicit val session = AutoSession
 //
 //  // table creation, you can run DDL by using #execute as same as JDBC
 //  sql"""
-//create table USER (
-//  USER_ID serial not null primary key,
-//  EMAIL varchar(200) not null,
-//  NAME VARCHAR(200)  not null
-//)
-//""".execute.apply()
+//    create table ALIAS (
+//    ALIAS_ID serial not null primary key,
+//    NAME varchar(30) not null,
+//    EMOJI_ID INT not null
+//    )
+//  """.execute.apply()
+//
+//  sql"""
+//    create table EMOJI (
+//    EMOJI_ID serial not null primary key,
+//    NAME varchar(30) not null,
+//    EMOJI_ID INT not null
+//    )
+//  """.execute.apply()
 //
 //  // insert initial data
 //  Map("Alice" -> "alice@hoge.com", "Bob" -> "bob@fuga.com", "Chris" -> "chris@piyo.com") foreach { case (name, email) =>
