@@ -1,6 +1,6 @@
 import com.google.inject.AbstractModule
 
-import utils.AppStartAndStopHookManager
+import utils.{UrlManager, AppStartAndStopHookManager}
 
 /**
   * This class is a Guice module that tells Guice how to bind several

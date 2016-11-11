@@ -4,7 +4,7 @@ import play.api.mvc._
 
 import models.User
 
-class Application extends Controller {
+class IndexController extends ControllerBase {
 
   implicit val user = Some(User(1, "test@test.com", "テスト太郎"))
 

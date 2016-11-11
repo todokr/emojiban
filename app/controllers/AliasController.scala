@@ -13,6 +13,6 @@ class AliasController extends Controller with AliasService {
   implicit val aliasFormat = Json.format[Alias]
 
   def index = Action {
-    Ok(Json.toJson(listAlias)).as(JSON).withHeaders("Access-Control-Allow-Origin" -> " *")
+    Ok(Json.toJson(listAlias)).as(JSON)
   }
 }
