@@ -10,11 +10,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 -- Schema emojiban
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `emojiban` ;
-
--- -----------------------------------------------------
--- Schema emojiban
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `emojiban` DEFAULT CHARACTER SET utf8mb4 ;
 USE `emojiban` ;
 
@@ -25,9 +20,9 @@ DROP TABLE IF EXISTS `emojiban`.`USER` ;
 
 CREATE TABLE IF NOT EXISTS `emojiban`.`USER` (
   `USER_ID` INT UNSIGNED NOT NULL COMMENT '',
-  `EMAIL` VARCHAR(200) NOT NULL COMMENT '',
+  `EMAIL` VARCHAR(200) CHARACTER SET utf8 NOT NULL COMMENT '',
   `NAME` VARCHAR(45) NOT NULL COMMENT '',
-  `CREATED_DATETIME` TIMESTAMP NOT NULL DEFAULT CURRENT_DATETIME COMMENT '',
+  `CREATED_DATETIME` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
   PRIMARY KEY (`USER_ID`)  COMMENT '',
   UNIQUE INDEX `USER_ID_UNIQUE` (`USER_ID` ASC)  COMMENT '',
   UNIQUE INDEX `EMAIL_UNIQUE` (`EMAIL` ASC)  COMMENT '')
@@ -41,7 +36,7 @@ DROP TABLE IF EXISTS `emojiban`.`EMOJI` ;
 
 CREATE TABLE IF NOT EXISTS `emojiban`.`EMOJI` (
   `EMOJI_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
-  `IMAGE_PATH` VARCHAR(200) NOT NULL COMMENT '',
+  `IMAGE_PATH` VARCHAR(200) CHARACTER SET utf8 NOT NULL COMMENT '',
   `CREATED_DATETIME` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '',
   `USER_ID` INT UNSIGNED NOT NULL COMMENT '',
   PRIMARY KEY (`EMOJI_ID`)  COMMENT '',
@@ -82,7 +77,7 @@ DROP TABLE IF EXISTS `emojiban`.`EVALUATION` ;
 CREATE TABLE IF NOT EXISTS `emojiban`.`EVALUATION` (
   `EVALUATION_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
   `VALUE` CHAR(1) NOT NULL COMMENT 'G: Good\nB: Bad',
-  `EVALUATED_DATETIME` VARCHAR(45) NOT NULL DEFAULT 'CURRENT_DATETIME' COMMENT '',
+  `EVALUATED_DATETIME` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT '',
   `EMOJI_ID` INT UNSIGNED NOT NULL COMMENT '',
   UNIQUE INDEX `EVALUATION_ID_UNIQUE` (`EVALUATION_ID` ASC)  COMMENT '',
   PRIMARY KEY (`EVALUATION_ID`)  COMMENT '',
@@ -99,60 +94,3 @@ COMMENT = 'Append Only';
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
--- -----------------------------------------------------
--- Data for table `emojiban`.`USER`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `emojiban`;
-INSERT INTO `emojiban`.`USER` (`USER_ID`, `EMAIL`, `NAME`, `CREATED_DATETIME`) VALUES (1, 's.tadokoro0317+emoji1@gmail.com', 'Shunsuke Tadokoro', DEFAULT);
-INSERT INTO `emojiban`.`USER` (`USER_ID`, `EMAIL`, `NAME`, `CREATED_DATETIME`) VALUES (2, 's.tadokoro0317+emoji2@gmail.com', 'Haggar', DEFAULT);
-INSERT INTO `emojiban`.`USER` (`USER_ID`, `EMAIL`, `NAME`, `CREATED_DATETIME`) VALUES (3, 's.tadokoro0317+emoji3@gmail.com', 'Morizone', DEFAULT);
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `emojiban`.`EMOJI`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `emojiban`;
-INSERT INTO `emojiban`.`EMOJI` (`EMOJI_ID`, `IMAGE_PATH`, `CREATED_DATETIME`, `USER_ID`) VALUES (1, '1.png', DEFAULT, 1);
-INSERT INTO `emojiban`.`EMOJI` (`EMOJI_ID`, `IMAGE_PATH`, `CREATED_DATETIME`, `USER_ID`) VALUES (2, '2.png', DEFAULT, 1);
-INSERT INTO `emojiban`.`EMOJI` (`EMOJI_ID`, `IMAGE_PATH`, `CREATED_DATETIME`, `USER_ID`) VALUES (3, '3.png', DEFAULT, 2);
-INSERT INTO `emojiban`.`EMOJI` (`EMOJI_ID`, `IMAGE_PATH`, `CREATED_DATETIME`, `USER_ID`) VALUES (4, '4.png', DEFAULT, 3);
-INSERT INTO `emojiban`.`EMOJI` (`EMOJI_ID`, `IMAGE_PATH`, `CREATED_DATETIME`, `USER_ID`) VALUES (5, '5.png', DEFAULT, 3);
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `emojiban`.`NAME`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `emojiban`;
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('swimmy', 1);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('minamisan', 1);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('souichirou', 1);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('totti', 2);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('totti2', 3);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('akiramenai', 4);
-INSERT INTO `emojiban`.`NAME` (`NAME`, `EMOJI_ID`) VALUES ('orz', 5);
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `emojiban`.`EVALUATION`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `emojiban`;
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (1, 'G', DEFAULT, 1);
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (2, 'G', DEFAULT, 1);
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (3, 'G', DEFAULT, 2);
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (4, 'B', DEFAULT, 3);
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (5, 'B', DEFAULT, 4);
-INSERT INTO `emojiban`.`EVALUATION` (`EVALUATION_ID`, `VALUE`, `EVALUATED_DATETIME`, `EMOJI_ID`) VALUES (6, 'G', DEFAULT, 5);
-
-COMMIT;
-
