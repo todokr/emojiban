@@ -22,8 +22,12 @@ object Download extends SQLSyntaxSupport[Download] {
 
   override val columns = Seq("DOWNLOAD_ID", "DOWNLOAD_DATETIME", "EMOJI_ID")
 
-  def apply(d: SyntaxProvider[Download])(rs: WrappedResultSet): Download = autoConstruct(rs, d)
-  def apply(d: ResultName[Download])(rs: WrappedResultSet): Download = autoConstruct(rs, d)
+  def apply(d: SyntaxProvider[Download])(rs: WrappedResultSet): Download = apply(d.resultName)(rs)
+  def apply(d: ResultName[Download])(rs: WrappedResultSet): Download = new Download(
+    downloadId = rs.get(d.downloadId),
+    downloadDatetime = rs.get(d.downloadDatetime),
+    emojiId = rs.get(d.emojiId)
+  )
 
   val d = Download.syntax("d")
 

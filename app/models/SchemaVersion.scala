@@ -30,8 +30,20 @@ object SchemaVersion extends SQLSyntaxSupport[SchemaVersion] {
 
   override val columns = Seq("version_rank", "installed_rank", "version", "description", "type", "script", "checksum", "installed_by", "installed_on", "execution_time", "success")
 
-  def apply(sv: SyntaxProvider[SchemaVersion])(rs: WrappedResultSet): SchemaVersion = autoConstruct(rs, sv)
-  def apply(sv: ResultName[SchemaVersion])(rs: WrappedResultSet): SchemaVersion = autoConstruct(rs, sv)
+  def apply(sv: SyntaxProvider[SchemaVersion])(rs: WrappedResultSet): SchemaVersion = apply(sv.resultName)(rs)
+  def apply(sv: ResultName[SchemaVersion])(rs: WrappedResultSet): SchemaVersion = new SchemaVersion(
+    versionRank = rs.get(sv.versionRank),
+    installedRank = rs.get(sv.installedRank),
+    version = rs.get(sv.version),
+    description = rs.get(sv.description),
+    `type` = rs.get(sv.`type`),
+    script = rs.get(sv.script),
+    checksum = rs.get(sv.checksum),
+    installedBy = rs.get(sv.installedBy),
+    installedOn = rs.get(sv.installedOn),
+    executionTime = rs.get(sv.executionTime),
+    success = rs.get(sv.success)
+  )
 
   val sv = SchemaVersion.syntax("sv")
 

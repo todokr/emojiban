@@ -23,8 +23,16 @@ object Evaluation extends SQLSyntaxSupport[Evaluation] {
 
   override val columns = Seq("EVALUATION_ID", "VALUE", "EVALUATED_DATETIME", "EMOJI_ID")
 
-  def apply(e: SyntaxProvider[Evaluation])(rs: WrappedResultSet): Evaluation = autoConstruct(rs, e)
-  def apply(e: ResultName[Evaluation])(rs: WrappedResultSet): Evaluation = autoConstruct(rs, e)
+  def apply(e: SyntaxProvider[Evaluation])(rs: WrappedResultSet): Evaluation = apply(e.resultName)(rs)
+  def apply(e: ResultName[Evaluation])(rs: WrappedResultSet): Evaluation = new Evaluation(
+    evaluationId = rs.get(e.evaluationId),
+    value = rs.get(e.value),
+    evaluatedDatetime = rs.get(e.evaluatedDatetime),
+    emojiId = rs.get(e.emojiId)
+  )
+
+  def opt(ev: SyntaxProvider[Evaluation])(rs: WrappedResultSet): Option[Evaluation] =
+    rs.intOpt(ev.resultName.emojiId).map(_ => Evaluation(ev)(rs))
 
   val e = Evaluation.syntax("e")
 

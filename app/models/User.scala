@@ -23,8 +23,13 @@ object User extends SQLSyntaxSupport[User] {
 
   override val columns = Seq("USER_ID", "EMAIL", "NAME", "CREATED_DATETIME")
 
-  def apply(u: SyntaxProvider[User])(rs: WrappedResultSet): User = autoConstruct(rs, u)
-  def apply(u: ResultName[User])(rs: WrappedResultSet): User = autoConstruct(rs, u)
+  def apply(u: SyntaxProvider[User])(rs: WrappedResultSet): User = apply(u.resultName)(rs)
+  def apply(u: ResultName[User])(rs: WrappedResultSet): User = new User(
+    userId = rs.get(u.userId),
+    email = rs.get(u.email),
+    name = rs.get(u.name),
+    createdDatetime = rs.get(u.createdDatetime)
+  )
 
   val u = User.syntax("u")
 

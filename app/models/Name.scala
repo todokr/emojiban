@@ -19,8 +19,14 @@ object Name extends SQLSyntaxSupport[Name] {
 
   override val columns = Seq("NAME", "EMOJI_ID")
 
-  def apply(n: SyntaxProvider[Name])(rs: WrappedResultSet): Name = autoConstruct(rs, n)
-  def apply(n: ResultName[Name])(rs: WrappedResultSet): Name = autoConstruct(rs, n)
+  def apply(n: SyntaxProvider[Name])(rs: WrappedResultSet): Name = apply(n.resultName)(rs)
+  def apply(n: ResultName[Name])(rs: WrappedResultSet): Name = new Name(
+    name = rs.get(n.name),
+    emojiId = rs.get(n.emojiId)
+  )
+
+  def opt(n: SyntaxProvider[Name])(rs: WrappedResultSet): Option[Name] =
+    rs.intOpt(n.resultName.emojiId).map(_ => Name(n)(rs))
 
   val n = Name.syntax("n")
 

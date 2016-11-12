@@ -4,11 +4,15 @@ import scalikejdbc._
 import java.time.{ZonedDateTime}
 import scalikejdbc.jsr310._
 
+import scala.util.Try
+
 case class Emoji(
   emojiId: Int,
   imagePath: String,
   createdDatetime: ZonedDateTime,
-  userId: Int) {
+  userId: Int,
+  evaluation: Seq[Evaluation] = Nil,
+  name: Seq[Name] = Nil) {
 
   def save()(implicit session: DBSession = Emoji.autoSession): Emoji = Emoji.save(this)(session)
 
@@ -23,21 +27,49 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
 
   override val columns = Seq("EMOJI_ID", "IMAGE_PATH", "CREATED_DATETIME", "USER_ID")
 
-  def apply(e: SyntaxProvider[Emoji])(rs: WrappedResultSet): Emoji = autoConstruct(rs, e)
-  def apply(e: ResultName[Emoji])(rs: WrappedResultSet): Emoji = autoConstruct(rs, e)
+  def apply(e: SyntaxProvider[Emoji])(rs: WrappedResultSet): Emoji = apply(e.resultName)(rs)
+  def apply(e: ResultName[Emoji])(rs: WrappedResultSet): Emoji = new Emoji(
+    emojiId = rs.get(e.emojiId),
+    imagePath = rs.get(e.imagePath),
+    createdDatetime = rs.get(e.createdDatetime),
+    userId = rs.get(e.userId)
+  )
 
-  val e = Emoji.syntax("e")
+  val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
 
   override val autoSession = AutoSession
 
   def find(emojiId: Int)(implicit session: DBSession = autoSession): Option[Emoji] = {
     withSQL {
-      select.from(Emoji as e).where.eq(e.emojiId, emojiId)
-    }.map(Emoji(e.resultName)).single.apply()
+      select.from(Emoji as e)
+        .leftJoin(Evaluation as ev).on(e.emojiId, ev.emojiId)
+        .leftJoin(Name as n).on(e.emojiId, n.emojiId)
+        .where.eq(e.emojiId, emojiId)
+    }
+      .one(Emoji(e))
+      .toManies(
+        rs => Evaluation.opt(ev)(rs),
+        rs => Name.opt(n)(rs)
+      )
+      .map{ (emoji, evaluation, name) => emoji.copy(evaluation = evaluation, name = name) }
+      .single
+      .apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[Emoji] = {
-    withSQL(select.from(Emoji as e)).map(Emoji(e.resultName)).list.apply()
+    withSQL {
+      select.from(Emoji as e)
+        .leftJoin(Evaluation as ev).on(e.emojiId, ev.emojiId)
+        .leftJoin(Name as n).on(e.emojiId, n.emojiId)
+    }
+      .one(Emoji(e))
+      .toManies(
+        rs => Evaluation.opt(ev)(rs),
+        rs => Name.opt(n)(rs)
+      )
+      .map{ (emoji, evaluation, name) => emoji.copy(evaluation = evaluation, name = name) }
+      .list
+      .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
@@ -65,8 +97,13 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
   def create(
     imagePath: String,
     createdDatetime: ZonedDateTime,
-    userId: Int)(implicit session: DBSession = autoSession): Emoji = {
-    val generatedKey = withSQL {
+    userId: Int,
+    names: Seq[String])(implicit session: DBSession = autoSession): Emoji = {
+
+    //val db = DB(session.connection)
+    // TODO transaction
+
+    val generatedEmojiId = withSQL {
       insert.into(Emoji).namedValues(
         column.imagePath -> imagePath,
         column.createdDatetime -> createdDatetime,
@@ -74,11 +111,16 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
       )
     }.updateAndReturnGeneratedKey.apply()
 
+    val createdNames = names.map { name =>
+      Name.create(name, generatedEmojiId.toInt)
+    }
+
     Emoji(
-      emojiId = generatedKey.toInt,
+      emojiId = generatedEmojiId.toInt,
       imagePath = imagePath,
       createdDatetime = createdDatetime,
-      userId = userId)
+      userId = userId,
+      name = createdNames)
   }
 
   def batchInsert(entities: Seq[Emoji])(implicit session: DBSession = autoSession): List[Int] = {
@@ -113,5 +155,4 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
   def destroy(entity: Emoji)(implicit session: DBSession = autoSession): Int = {
     withSQL { delete.from(Emoji).where.eq(column.emojiId, entity.emojiId) }.update.apply()
   }
-
 }
