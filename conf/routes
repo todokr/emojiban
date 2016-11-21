@@ -7,6 +7,7 @@ GET     /                           controllers.IndexController.index
 GET     /alias                      controllers.NameController.index
 GET     /api/emoji/popular          controllers.EmojiController.popularEmojis
 GET     /api/emoji/new              controllers.EmojiController.newEmojis
+POST    /api/emoji/save             controllers.EmojiController.save
 
 
 # Map static resources from the /public folder to the /assets URL path

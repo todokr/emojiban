@@ -29,6 +29,9 @@ object Download extends SQLSyntaxSupport[Download] {
     emojiId = rs.get(d.emojiId)
   )
 
+  def opt(d: SyntaxProvider[Download])(rs: WrappedResultSet): Option[Download] =
+    rs.intOpt(d.resultName.emojiId).map(_ => Download(d)(rs))
+
   val d = Download.syntax("d")
 
   override val autoSession = AutoSession

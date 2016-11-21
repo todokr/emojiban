@@ -1,17 +1,21 @@
 package service
 
+import java.io.File
+import java.sql.Time
 import java.time.ZonedDateTime
 
-import models.{Evaluation, Name, Emoji}
 import scalikejdbc._
-import service.EmojiService.DisplayEmoji
+import scalaz.{-\/, \/-, \/}
 
-/**
-  * Created by Shunsuke on 2016/11/12.
-  */
+import models.{Evaluation, Name, Emoji}
+import service.EmojiService.DisplayEmoji
+import utils.SecurityUtils
+
 trait EmojiService {
+  self: S3Service =>
 
   implicit val session = AutoSession
+  val s3UrlPrefix = "http://http://emojiban-dev.s3-website-ap-northeast-1.amazonaws.com"
 
   val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
 
@@ -21,6 +25,22 @@ trait EmojiService {
 
   def newEmoji(size: Int): Seq[DisplayEmoji] = {
     findAllEmoji.sortBy(_.createdDatetime).reverse.take(size)
+  }
+
+  def saveEmoji(userId: Int, file: File): \/[String, String] = {
+    val currentTime = ZonedDateTime.now()
+    val key = SecurityUtils.sha256(userId.toString + currentTime.toEpochSecond.toString)
+    val entity = Emoji(
+      emojiId = 0,
+      imagePath = s3UrlPrefix + key,
+      createdDatetime = currentTime,
+      userId = userId
+    )
+
+    for {
+      _ <- Emoji.save(entity)
+      result <- uploadToS3(key, file)
+    } yield result
   }
 
   private def findAllEmoji: Seq[DisplayEmoji] = {

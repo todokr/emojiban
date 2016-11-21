@@ -1,10 +1,9 @@
 package models
 
 import scalikejdbc._
-import java.time.{ZonedDateTime}
+import java.time.ZonedDateTime
 import scalikejdbc.jsr310._
-
-import scala.util.Try
+import scalaz.{-\/, \/-, \/}
 
 case class Emoji(
   emojiId: Int,
@@ -12,9 +11,10 @@ case class Emoji(
   createdDatetime: ZonedDateTime,
   userId: Int,
   evaluation: Seq[Evaluation] = Nil,
-  name: Seq[Name] = Nil) {
+  name: Seq[Name] = Nil,
+  download: Seq[Download] = Nil) {
 
-  def save()(implicit session: DBSession = Emoji.autoSession): Emoji = Emoji.save(this)(session)
+  def save()(implicit session: DBSession = Emoji.autoSession): \/[String, Emoji] = Emoji.save(this)(session)
 
   def destroy()(implicit session: DBSession = Emoji.autoSession): Int = Emoji.destroy(this)(session)
 
@@ -35,39 +35,43 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
     userId = rs.get(e.userId)
   )
 
-  val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
+  val (e, ev, n, d) = (Emoji.syntax, Evaluation.syntax, Name.syntax, Download.syntax)
 
   override val autoSession = AutoSession
 
   def find(emojiId: Int)(implicit session: DBSession = autoSession): Option[Emoji] = {
-    withSQL {
-      select.from(Emoji as e)
+    withSQL(
+      select.from[Emoji](Emoji as e)
         .leftJoin(Evaluation as ev).on(e.emojiId, ev.emojiId)
+        .leftJoin(Download as d).on(e.emojiId, d.emojiId)
         .leftJoin(Name as n).on(e.emojiId, n.emojiId)
-        .where.eq(e.emojiId, emojiId)
-    }
+        .where.eq(e.emojiId, emojiId))
       .one(Emoji(e))
       .toManies(
         rs => Evaluation.opt(ev)(rs),
+        rs => Download.opt(d)(rs),
         rs => Name.opt(n)(rs)
       )
-      .map{ (emoji, evaluation, name) => emoji.copy(evaluation = evaluation, name = name) }
-      .single
-      .apply()
+      .map((emoji, evaluation, download, name) =>
+        emoji.copy(evaluation = evaluation, download = download, name = name))
+      .single.apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[Emoji] = {
-    withSQL {
-      select.from(Emoji as e)
+
+    withSQL(
+      select.from[Emoji](Emoji as e)
         .leftJoin(Evaluation as ev).on(e.emojiId, ev.emojiId)
-        .leftJoin(Name as n).on(e.emojiId, n.emojiId)
-    }
+        .leftJoin(Download as d).on(e.emojiId, d.emojiId)
+        .leftJoin(Name as n).on(e.emojiId, n.emojiId))
       .one(Emoji(e))
       .toManies(
         rs => Evaluation.opt(ev)(rs),
+        rs => Download.opt(d)(rs),
         rs => Name.opt(n)(rs)
       )
-      .map{ (emoji, evaluation, name) => emoji.copy(evaluation = evaluation, name = name) }
+      .map((emoji, evaluation, download, name) =>
+        emoji.copy(evaluation = evaluation, download = download, name = name))
       .list
       .apply()
   }
@@ -140,8 +144,8 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
       )""").batchByName(params: _*).apply[List]()
     }
 
-  def save(entity: Emoji)(implicit session: DBSession = autoSession): Emoji = {
-    withSQL {
+  def save(entity: Emoji)(implicit session: DBSession = autoSession): \/[String, Emoji] = {
+    val result = withSQL {
       update(Emoji).set(
         column.emojiId -> entity.emojiId,
         column.imagePath -> entity.imagePath,
@@ -149,7 +153,7 @@ object Emoji extends SQLSyntaxSupport[Emoji] {
         column.userId -> entity.userId
       ).where.eq(column.emojiId, entity.emojiId)
     }.update.apply()
-    entity
+    if (result > 0) \/-(entity) else -\/("Failed to Save Emoji")
   }
 
   def destroy(entity: Emoji)(implicit session: DBSession = autoSession): Int = {
