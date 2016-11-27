@@ -15,6 +15,7 @@ trait EmojiService {
   self: S3Service =>
 
   implicit val session = AutoSession
+  val emojiUrlPrefix = "https://s3-ap-northeast-1.amazonaws.com/emojiban-dev/" // TODO
 
   val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
 
@@ -43,7 +44,7 @@ trait EmojiService {
     Emoji.findAll() map { e =>
       DisplayEmoji(
         emojiId = e.emojiId,
-        imagePath = e.imagePath,
+        imagePath = emojiUrlPrefix + e.imagePath,
         createdDatetime = e.createdDatetime.toEpochSecond,
         userId = e.userId,
         evaluation = {
