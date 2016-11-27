@@ -15,7 +15,6 @@ trait EmojiService {
   self: S3Service =>
 
   implicit val session = AutoSession
-  val s3UrlPrefix = "http://http://emojiban-dev.s3-website-ap-northeast-1.amazonaws.com"
 
   val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
 
@@ -27,20 +26,17 @@ trait EmojiService {
     findAllEmoji.sortBy(_.createdDatetime).reverse.take(size)
   }
 
-  def saveEmoji(userId: Int, file: File): \/[String, String] = {
+  def saveEmoji(userId: Int, file: File, names: Seq[String], contentType: Option[String]): \/[String, String] = {
     val currentTime = ZonedDateTime.now()
     val key = SecurityUtils.sha256(userId.toString + currentTime.toEpochSecond.toString)
     val entity = Emoji(
       emojiId = 0,
-      imagePath = s3UrlPrefix + key,
+      imagePath = key,
       createdDatetime = currentTime,
       userId = userId
     )
-
-    for {
-      _ <- Emoji.save(entity)
-      result <- uploadToS3(key, file)
-    } yield result
+    Emoji.create(entity.imagePath, entity.createdDatetime, entity.userId, names)
+    uploadToS3(key, file, contentType)
   }
 
   private def findAllEmoji: Seq[DisplayEmoji] = {

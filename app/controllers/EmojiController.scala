@@ -23,9 +23,11 @@ class EmojiController extends ControllerBase with S3Service with EmojiService {
   }
 
   def save = Action(parse.multipartFormData) { implicit r =>
-    r.body.file("emoji").map { emoji =>
+    r.body.file("emojiFile").map { emoji =>
+      val emojiName = r.body.dataParts.get("emojiName")
+      println(emojiName)
       val userId = 1 // TODO
-      saveEmoji(userId, emoji.ref.file) match {
+      saveEmoji(userId, emoji.ref.file, Seq("testName"), emoji.contentType) match {
         case \/-(x) => Ok(Json.obj("emojiPath" -> x))
         case -\/(err) => BadRequest(Json.obj("message" -> err))
       }
