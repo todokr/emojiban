@@ -9,13 +9,12 @@ import scalaz.{-\/, \/-, \/}
 
 import models.{Evaluation, Name, Emoji}
 import service.EmojiService.DisplayEmoji
-import utils.SecurityUtils
+import utils.{AppConfigProvider, SecurityUtils, ConfigLoader}
 
 trait EmojiService {
-  self: S3Service =>
+  self: S3Service with AppConfigProvider =>
 
   implicit val session = AutoSession
-  val emojiUrlPrefix = "https://s3-ap-northeast-1.amazonaws.com/emojiban-dev/" // TODO
 
   val (e, ev, n) = (Emoji.syntax, Evaluation.syntax, Name.syntax)
 
@@ -44,7 +43,7 @@ trait EmojiService {
     Emoji.findAll() map { e =>
       DisplayEmoji(
         emojiId = e.emojiId,
-        imagePath = emojiUrlPrefix + e.imagePath,
+        imagePath = config.s3Url + e.imagePath,
         createdDatetime = e.createdDatetime.toEpochSecond,
         userId = e.userId,
         evaluation = {
